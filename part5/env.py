@@ -1,3 +1,19 @@
+"""
+Feature Engineering
+如果能做成连续的 reward 信号, 我们能将收敛性提升一个档次, 如果在 feature 上下一番功夫,
+收敛性又可以提升, 好的 feature 起到了关键性的作用. 如果使用的 features 很完整的展示这个学习环境,
+那手臂也能依据这些有价值的 feature 快速学习. 所以很多时候, 你会看到很多人直接使用图像当作输入,
+因为图像就是已经包含了所有信息的 feature. 用图片做feature还需要CNN处理，这里自己提取一些feature即可。
+
+之前只用到了两个手臂的转动角度信息. 按学习情况来看, 这个信息不能提供全面的 state.
+所以需要再想想, 还有哪些是有价值的信息. 比如两截手臂的端点到 goal 的距离? 手臂端点离中心点的距离?
+这些都是可以的. 将这两个补充进 state.
+现在的 state 拥有9个信息, 分别是两截手臂端点到中心点和goal 的 x,y 坐标 (共8个), 注意到这些坐标涵盖了角度信息，只要坐标确定，角度就确定了。
+最后一个信息是 finger 是否在 goal 的区域内. 这一个 feature 是有用的,
+因为只要这个 feature 被激活, 手臂完全就可以根据这个不动了,
+这在已经移动到了 goal 上的时候非常有用.
+"""
+
 import numpy as np
 import pyglet
 
@@ -7,6 +23,7 @@ class ArmEnv(object):
     dt = .1    # refresh rate
     action_bound = [-1, 1]
     goal = {'x': 100., 'y': 100., 'l': 40}
+    # 这里state变为了9，不再是之前仅仅用两个角度表示state了
     state_dim = 9
     action_dim = 2
 
@@ -44,6 +61,14 @@ class ArmEnv(object):
             self.on_goal = 0
 
         # state
+        """
+        dist1 + dist2是列表相加, dist1和dist2还不是numpy.对np而言看注释的代码
+        x = np.zeros(2)
+        y = np.ones(2)
+        z = x + y
+        print(x, y, z)
+        output: [0. 0.] [1. 1.] [1. 1.]
+        """
         s = np.concatenate((a1xy_/200, finger/200, dist1 + dist2, [1. if self.on_goal else 0.]))
         return s, r, done
 

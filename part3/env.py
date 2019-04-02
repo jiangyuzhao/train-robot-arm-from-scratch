@@ -14,8 +14,11 @@ class ArmEnv(object):
         self.arm_info = np.zeros(
             2, dtype=[('l', np.float32), ('r', np.float32)])
         self.arm_info['l'] = 100
+        # 只有转角信息被作为state，长度在这里不是state
         self.arm_info['r'] = np.pi/6
 
+    # action的维度是2，即一个action不是'left'或者'right'这种单一维度的动作，
+    # 而是[0, 1]这样两维度表示一个动作，而其中每个维度都是连续的。
     def step(self, action):
         done = False
         r = 0.
@@ -59,8 +62,8 @@ class Viewer(pyglet.window.Window):
         # vsync=False to not use the monitor FPS, we can speed up training
         super(Viewer, self).__init__(width=400, height=400, resizable=False, caption='Arm', vsync=False)
         pyglet.gl.glClearColor(1, 1, 1, 1)
-        self.arm_info = arm_info
-        self.center_coord = np.array([200, 200])
+        self.arm_info = arm_info   # 根据arm_info作图
+        self.center_coord = np.array([200, 200])    # 因为400 * 400，中心就是200 * 200
 
         self.batch = pyglet.graphics.Batch()    # display whole batch at once
         self.goal = self.batch.add(
@@ -96,6 +99,8 @@ class Viewer(pyglet.window.Window):
         self.batch.draw()
 
     def _update_arm(self):
+        # 这个部分是简单的三角函数运算，看一看很容易理解，因为画的是长方形而不是一条线，因此4个点的坐标都要算出来
+        # 先算出一条基准线，再根据这条基准线算出4个点
         (a1l, a2l) = self.arm_info['l']     # radius, arm length
         (a1r, a2r) = self.arm_info['r']     # radian, angle
         a1xy = self.center_coord            # a1 start (x0, y0)

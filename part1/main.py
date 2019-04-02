@@ -1,6 +1,10 @@
 """
 Build the basic framework for main.py, rl.py and env.py.
 """
+"""
+以一个正常的实现思路而言，应该先写一个main函数，从而发现env和rl需要实现的方法，这个框架可以背起来。
+env的那三个方法reset, render和step是gym里也用到的3个方法！
+"""
 from part1.env import ArmEnv
 from part1.rl import DDPG
 
@@ -47,6 +51,3 @@ rl.store_transition()
 rl.learn()
 rl.memory_full
 """
-
-
-

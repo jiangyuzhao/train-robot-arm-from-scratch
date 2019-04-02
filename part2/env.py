@@ -19,6 +19,11 @@ class ArmEnv(object):
             self.viewer = Viewer()
         self.viewer.render()
 
+"""
+为何要单独实现一个Viewer类？因为可视化不是环境必须提供的功能！环境只需要step和reset就可以和rl交互了
+因此为了解耦合，让Viewer变成一个plugin就好了
+"""
+
 
 class Viewer(pyglet.window.Window):
     bar_thc = 5
@@ -29,6 +34,8 @@ class Viewer(pyglet.window.Window):
         pyglet.gl.glClearColor(1, 1, 1, 1)
 
         self.batch = pyglet.graphics.Batch()    # display whole batch at once
+        # 第一个参数表示4个顶点，第二个参数表示用多边形，之后的v2f表示位置用2个浮点数(x, y)表示，然后4个顶点因此有8个数
+        # c3B是来弄颜色的, color，用3个byte表示颜色(即RGB)，*4是因为4个顶点，4个顶点都同颜色那么整个地方也就同色了
         self.point = self.batch.add(
             4, pyglet.gl.GL_QUADS, None,    # 4 corners
             ('v2f', [50, 50,                # location
